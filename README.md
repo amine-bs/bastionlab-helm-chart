@@ -1,2 +1,2 @@
 # bastionlab-helm-chart
-a helm chart to deploy bastionlab 
+A helm chart to deploy bastionlab 
