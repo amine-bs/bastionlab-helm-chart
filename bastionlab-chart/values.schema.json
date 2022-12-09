@@ -6,7 +6,7 @@
         "type": "object",
         "properties": {
           "enableAuth": {
-            "description": "This will create authenticatin keys",
+            "description": "This will create authentication keys",
             "title": "enable authentication",
             "type": "boolean",
             "default": false
