@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bastionlab.fullname" . }}
+  labels:
+    {{- include "bastionlab.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "bastionlab.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "bastionlab.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "bastionlab.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      
+      {{- if .Values.bastionlab.enableAuth }}
+      volumes:
+        - name: config-server
+          configMap:
+            name: config-server
+
+        - name: keys-volume
+          emptyDir:
+            sizeLimit: 500Mi
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.bastionlab.enableAuth }}
+          volumeMounts:
+            - mountPath: /app/bin/config.toml
+              name: config-server
+              subPath: config.toml
+            - mountPath: /app/bin/keys
+              name: keys-volume
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- if .Values.bastionlab.enableAuth }}      
+      initContainers:
+        - name: generate-keys
+          image: "python:alpine"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /home
+              name: keys-volume
+          command:
+            - sh
+            - -c
+            - |
+              pip install --no-cache cryptography && \
+              wget https://raw.githubusercontent.com/mithril-security/bastionlab/master/client/src/bastionlab/keys.py && \
+              wget https://raw.githubusercontent.com/amine-bs/bastionlab-helm-chart/main/utils/generate_keys.py && \
+              mkdir /home/owners && \
+              mkdir /home/users && \
+              mkdir /home/privkeys && \
+              python generate_keys.py 
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
