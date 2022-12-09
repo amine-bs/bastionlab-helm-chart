@@ -1,46 +1,49 @@
+{{- $fullName := include "library-chart.fullname" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "bastionlab.fullname" . }}
+  name: {{ include "library-chart.fullname" . }}
   labels:
-    {{- include "bastionlab.labels" . | nindent 4 }}
+    {{- include "library-chart.labels" . | nindent 4 }}
 spec:
+{{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+{{- end }}
   selector:
     matchLabels:
-      {{- include "bastionlab.selectorLabels" . | nindent 6 }}
+      {{- include "library-chart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+    {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+    {{- end }}
       labels:
-        {{- include "bastionlab.selectorLabels" . | nindent 8 }}
+        {{- include "library-chart.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "bastionlab.serviceAccountName" . }}
+      serviceAccountName: {{ include "library-chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
-      
       {{- if .Values.bastionlab.enableAuth }}
       volumes:
         - name: config-server
           configMap:
-            name: config-server
+            name: {{ include "library-chart.fullname" . }}
 
         - name: keys-volume
           emptyDir:
-            sizeLimit: 500Mi
+            sizeLimit: 100Mi
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.service.image.repository }}:{{ .Values.service.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.service.image.pullPolicy }}
           {{- if .Values.bastionlab.enableAuth }}
           volumeMounts:
             - mountPath: /app/bin/config.toml
@@ -51,11 +54,12 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.networking.service.port}}
               protocol: TCP
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+
       {{- if .Values.bastionlab.enableAuth }}      
       initContainers:
         - name: generate-keys
@@ -76,7 +80,8 @@ spec:
               mkdir /home/privkeys && \
               python generate_keys.py 
       {{- end }}
-      {{- with .Values.nodeSelector }}
+              
+      {{- with .Values.nodeSelector }} 
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}

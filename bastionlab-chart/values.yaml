@@ -1,16 +1,18 @@
-# Default values for bastionlab.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
-
-
-image:
-  repository: mithrilsecuritysas/bastionlab
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: "v0.3.4"
+service:
+  image:
+    repository: "mithrilsecuritysas/bastionlab"
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "v0.3.4"
 
 bastionlab:
-  enableAuth: false
+  enableAuth: true
+
+replicaCount: 1
+
+security:
+  networkPolicy: 
+    enabled: true
 
 imagePullSecrets: []
 nameOverride: ""
@@ -38,10 +40,12 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-service:
-  type: ClusterIP
-  port: 50056
 
+networking:
+  type: ClusterIP
+  service:
+    port: 50056
+  
 
 
 resources: {}
@@ -57,9 +61,15 @@ resources: {}
   #   memory: 128Mi
 
 
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
-
