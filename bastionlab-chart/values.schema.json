@@ -11,17 +11,6 @@
             "type": "boolean",
             "default": false
           },
-          "keysDirectory": {
-            "description": "Directory path relative to /app/bin to save keys",
-            "title": "Keys Directory",
-            "type": "string",
-            "default": "keys",
-            "form": true,
-            "hidden": {
-              "value": false,
-              "path": "bastionlab/enableAuth"
-            }
-          },
           "usersNumber": {
             "description": "Number of keys generated for users",
             "title": "Number of users",

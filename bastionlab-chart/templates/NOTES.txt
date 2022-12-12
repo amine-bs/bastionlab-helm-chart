@@ -1,7 +1,8 @@
 - You can connect to this server only within the cluster itself on this url: {{ include "library-chart.fullname" . }}:{{ .Values.networking.service.port }}
 {{- if .Values.bastionlab.enableAuth }}
 - Authentication is enabled
-- You can access the private keys in the directory /app/bin/keys/privkeys of the server's container
+- You can access the private keys in the directory /app/bin/{{ .Values.bastionlab.keysDirectory }}/privkeys of the server's container
+- {{ .Values.bastionlab.usersNumber }} keys were generated for users
 {{- else}}
 - Authentication is disabled
 {{- end}}
