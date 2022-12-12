@@ -36,7 +36,7 @@ spec:
 
         - name: keys-volume
           emptyDir:
-            sizeLimit: 100Mi
+            sizeLimit: {{ .values.bastionlab.keysDirSize }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -49,7 +49,7 @@ spec:
             - mountPath: /app/bin/config.toml
               name: config-server
               subPath: config.toml
-            - mountPath: /app/bin/keys
+            - mountPath: /app/bin/{{ .Values.bastionlab.keysDirectory }}
               name: keys-volume
           {{- end }}
           ports:
@@ -78,7 +78,7 @@ spec:
               mkdir /home/owners && \
               mkdir /home/users && \
               mkdir /home/privkeys && \
-              python generate_keys.py 
+              python generate_keys.py {{ .Values.bastionlab.usersNumber }}
       {{- end }}
               
       {{- with .Values.nodeSelector }} 

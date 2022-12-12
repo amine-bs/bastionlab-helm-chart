@@ -10,6 +10,18 @@
             "title": "enable authentication",
             "type": "boolean",
             "default": false
+          },
+          "keysDirectory": {
+            "description": "Directory path relative to /app/bin to save keys",
+            "title": "Keys Directory",
+            "type": "string",
+            "default": "keys"
+          },
+          "usersNumber": {
+            "description": "number of keys generated for users",
+            "title": "number of users",
+            "type": "integer",
+            "default": 1
           }
         }
       },

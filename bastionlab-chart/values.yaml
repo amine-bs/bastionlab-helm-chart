@@ -3,10 +3,13 @@ service:
     repository: "mithrilsecuritysas/bastionlab"
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "v0.3.4"
+    tag: "v0.3.5"
 
 bastionlab:
   enableAuth: true
+  keysDirectory: "keys"
+  usersNumber: 1
+  keysDirSize: 500Mi
 
 replicaCount: 1
 
