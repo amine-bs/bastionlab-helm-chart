@@ -15,13 +15,23 @@
             "description": "Directory path relative to /app/bin to save keys",
             "title": "Keys Directory",
             "type": "string",
-            "default": "keys"
+            "default": "keys",
+            "form": true,
+            "hidden": {
+              "value": false,
+              "path": "bastionlab/enableAuth"
+            }
           },
           "usersNumber": {
-            "description": "number of keys generated for users",
-            "title": "number of users",
+            "description": "Number of keys generated for users",
+            "title": "Number of users",
             "type": "integer",
-            "default": 1
+            "default": 1,
+            "form": true,
+            "hidden": {
+              "value": false,
+              "path": "bastionlab/enableAuth"
+            }
           }
         }
       },

@@ -36,7 +36,7 @@ spec:
 
         - name: keys-volume
           emptyDir:
-            sizeLimit: {{ .values.bastionlab.keysDirSize }}
+            sizeLimit: {{ .Values.bastionlab.keysDirSize }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
